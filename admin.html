@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+</head>
+<body>
+  <h2>Admin Login</h2>
+  <form id="loginForm">
+    <input type="text" id="adminUser" placeholder="Username" required>
+    <input type="password" id="adminPass" placeholder="Password" required>
+    <button type="submit">Login</button>
+  </form>
+
+  <h2>Send Newsletter</h2>
+  <form id="newsletterForm">
+    <input type="text" id="subject" placeholder="Subject" required>
+    <textarea id="message" placeholder="Your message..." required></textarea>
+    <button type="submit">Send</button>
+  </form>
+
+  <!-- 👇 Paste your script right before closing body -->
+  <script>
+  let loginToken = null; // will store token after login
+
+  // Admin login
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const username = document.getElementById("adminUser").value;
+    const password = document.getElementById("adminPass").value;
+
+    const res = await fetch("http://localhost:3000/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await res.json();
+    alert(data.message);
+
+    if (data.success) {
+      loginToken = data.token; // save token
+      console.log("Saved login token:", loginToken);
+    }
+  });
+
+  // Send newsletter
+  document.getElementById("newsletterForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const subject = document.getElementById("subject").value;
+    const message = document.getElementById("message").value;
+
+    if (!loginToken) {
+      alert("❌ You must log in first!");
+      return;
+    }
+
+    const res = await fetch("http://localhost:3000/admin/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: loginToken, subject, message })
+    });
+
+    const data = await res.json();
+    alert(data.message);
+  });
+  </script>
+</body>
+</html>
